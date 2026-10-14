@@ -25,6 +25,7 @@ PRODUCT_COPY_FILES += \
     vendor/google/flame/proprietary/product/etc/permissions/com.verizon.services.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/com.verizon.services.xml \
     vendor/google/flame/proprietary/product/etc/permissions/features-verizon.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/features-verizon.xml \
     vendor/google/flame/proprietary/product/etc/permissions/privapp-permissions-google-p-lineage.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/privapp-permissions-google-p-lineage.xml \
+    vendor/google/flame/proprietary/product/etc/permissions/privapp-permissions-pixel-live-wallpaper.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/privapp-permissions-pixel-live-wallpaper.xml \
     vendor/google/flame/proprietary/product/etc/permissions/uimremoteclient.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/uimremoteclient.xml \
     vendor/google/flame/proprietary/product/etc/permissions/uimremoteserver.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/uimremoteserver.xml \
     vendor/google/flame/proprietary/product/etc/sysconfig/GoogleCamera_6gb_or_more_ram.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/GoogleCamera_6gb_or_more_ram.xml \
@@ -72,6 +73,9 @@ PRODUCT_PACKAGES += \
     PixelCameraServicesFlame \
     VZWAPNLib \
     uimremoteclient \
+    OsloFeedback \
+    MotionSenseBridgePrebuilt \
+    PixelLiveWallpaper \
     uimremoteserver \
     AmbientSensePrebuilt \
     AppDirectedSMSService \
@@ -1549,3 +1553,12 @@ PRODUCT_PACKAGES += \
     vendor_lib64_libEGL_adreno_so \
     vendor_lib64_libGLESv2_adreno_so \
     vendor_lib64_libq3dtools_adreno_so
+
+# 3D face unlock (Pixel Neural Core)
+PRODUCT_COPY_FILES += \
+    vendor/google/flame/proprietary/vendor/etc/init/android.hardware.biometrics.face@1.0-service.google.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/android.hardware.biometrics.face@1.0-service.google.rc
+
+PRODUCT_PACKAGES += \
+    libautocalsolvers \
+    android.hardware.biometrics.face@1.0-service.google \
+    manifest_face.xml

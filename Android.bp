@@ -16204,7 +16204,6 @@ cc_prebuilt_library_shared {
                 "proprietary/vendor/lib64/android.hardware.keymaster@4.1-impl.nos.so",
             ],
             shared_libs: [
-                "libcrypto_shim",
                 "libbase",
                 "libnos",
                 "libnosprotos",
@@ -16212,7 +16211,7 @@ cc_prebuilt_library_shared {
                 "android.hardware.keymaster@4.0",
                 "android.hardware.keymaster@4.1",
                 "libkeymaster4support",
-                "libcrypto",
+                "libcrypto-v33",
                 "libprotobuf-cpp-full-3.9.1-vendorcompat",
                 "nos_app_keymaster",
                 "libhidlbase",
@@ -22439,6 +22438,7 @@ cc_prebuilt_binary {
                 "proprietary/vendor/bin/hw/android.hardware.keymaster@4.1-service.citadel",
             ],
             shared_libs: [
+                "libcrypto-v33",
                 "libbase",
                 "libhidlbase",
                 "libnos",
@@ -23991,4 +23991,143 @@ install_symlink {
     soc_specific: true,
     installed_location: "lib64/libq3dtools_adreno.so",
     symlink_target: "/vendor/lib64/egl/libq3dtools_adreno.so",
+}
+
+android_app_import {
+    name: "OsloFeedback",
+    owner: "google",
+    apk: "proprietary/system_ext/priv-app/OsloFeedback/OsloFeedback.apk",
+    certificate: "platform",
+    dex_preopt: {
+        enabled: false,
+    },
+    privileged: true,
+    system_ext_specific: true,
+}
+
+// Full Motion Sense Bridge implementation. The factory-image Prebuilt APK is only a stub
+// (no classes.dex), which leaves Pokémon Wave Hello's OsloUnityPlugin with no service to bind.
+// This compatibility build removes the original app whitelist; platform signing grants the
+// restricted Oslo provider permission used to talk to com.google.oslo.service.OsloService.
+android_app_import {
+    name: "MotionSenseBridgePrebuilt",
+    owner: "google",
+    apk: "proprietary/product/app/MotionSenseBridge/MotionSenseBridge.apk",
+    certificate: "platform",
+    dex_preopt: {
+        enabled: false,
+    },
+    product_specific: true,
+}
+
+
+genrule {
+    name: "coral_google_wallpapers_without_pokemon_apk",
+    tools: ["coral_strip_google_pokemon_wallpaper"],
+    srcs: ["proprietary/product/priv-app/PixelLiveWallpaper/PixelLiveWallpaper.apk"],
+    out: ["PixelLiveWallpaper.apk"],
+    cmd: "$(location coral_strip_google_pokemon_wallpaper) --input $(in) --output $(out)",
+}
+
+android_app_import {
+    name: "PixelLiveWallpaper",
+    owner: "google",
+    apk: ":coral_google_wallpapers_without_pokemon_apk",
+    certificate: "platform",
+    dex_preopt: {
+        enabled: false,
+    },
+    privileged: true,
+    product_specific: true,
+}
+
+cc_prebuilt_binary {
+    name: "android.hardware.biometrics.face@1.0-service.google",
+    owner: "google",
+    target: {
+        android_arm64: {
+            srcs: [
+                "proprietary/vendor/bin/hw/android.hardware.biometrics.face@1.0-service.google",
+            ],
+            shared_libs: [
+                "libairbrush-pixel",
+                "libbase-v33",
+                "libbinder_ndk",
+                "libface-calibration-proto",
+                "libface-enroll-proto",
+                "libfaceauth-util",
+                "libhidlbase",
+                "libion",
+                "libkeymaster4_1support",
+                "liblog",
+                "libnos",
+                "libnos_citadeld_proxy",
+                "libnos_client_citadel",
+                "libpng",
+                "libprotobuf-cpp-full-3.9.1-vendorcompat",
+                "libutils",
+                "android.frameworks.stats-V1-ndk",
+                "android.hardware.biometrics.face@1.0",
+                "android.hardware.keymaster@4.1",
+                "android.hardware.thermal@2.0",
+                "libcamera2ndk_v33_face",
+                "libbinder",
+                "libstagefright_foundation-v33",
+                "libcutils",
+                "libcamera_metadata",
+                "libmediandk",
+                "libnativewindow",
+                "libc++",
+                "libc",
+                "libm",
+                "libdl",
+            ],
+        },
+    },
+    compile_multilib: "64",
+    check_elf_files: false,
+    strip: {
+        none: true,
+    },
+    prefer: true,
+    relative_install_path: "hw",
+    soc_specific: true,
+}
+
+prebuilt_etc_xml {
+    name: "manifest_face.xml",
+    owner: "google",
+    src: "proprietary/vendor/etc/vintf/manifest/manifest_face.xml",
+    filename_from_src: true,
+    sub_dir: "vintf/manifest",
+    soc_specific: true,
+}
+
+// Face HAL opens this with dlopen; it is absent from its DT_NEEDED list.
+cc_prebuilt_library_shared {
+    name: "libautocalsolvers",
+    owner: "google",
+    target: {
+        android_arm64: {
+            srcs: [
+                "proprietary/vendor/lib64/libautocalsolvers.so",
+            ],
+            shared_libs: [
+                "libm",
+                "liblog",
+                "libz",
+                "libdl",
+                "libc",
+            ],
+        },
+    },
+    compile_multilib: "64",
+    // The verified stock blob has SONAME libautocalsolvers.so-Wl.
+    // HAL dlopen requires the stock filename libautocalsolvers.so.
+    check_elf_files: false,
+    strip: {
+        none: true,
+    },
+    prefer: true,
+    soc_specific: true,
 }

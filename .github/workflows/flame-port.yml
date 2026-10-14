@@ -1,0 +1,70 @@
+name: Validate Flame Face ID and Motion Sense port
+
+on:
+  push:
+    branches: [infinity-4.1-flame]
+  pull_request:
+    branches: [infinity-4.1-flame]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: its-hecker/infinity_cnb_android_device_google_coral
+          ref: infinity-4.1-flame
+          path: device-reference
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check Flame install graph and donor provenance
+        run: python3 tools/check_flame_port.py --device-root device-reference
+      - name: Retrieve pinned stock and legacy ABI references
+        run: |
+          set -euo pipefail
+          mkdir -p work
+          FLAME="https://raw.githubusercontent.com/its-hecker/infinityx_cnb_vendor_google_flame/a57f01d5642a55250e48b244f51be9322659eeed/proprietary/vendor"
+          curl -fL --retry 3 "$FLAME/bin/hw/android.hardware.keymaster@4.1-service.citadel" -o work/keymaster-service.before
+          curl -fL --retry 3 "$FLAME/lib64/android.hardware.keymaster@4.1-impl.nos.so" -o work/keymaster-impl.before
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/LineageOS/android_hardware_lineage_compat/8d1f79edefa48fd848b3e306fc7361fb944041b3/vndk/v33/arm64/libcrypto-v33.so \
+            -o work/libcrypto-v33.so
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/leddaz-dump-stash/google_coral_dump/18b199b6caa97af88be5b5f99abae6dc1a3a4523/vendor/bin/hw/android.hardware.biometrics.face@1.0-service.google \
+            -o work/stock-face-hal
+      - name: Verify calibration and unchanged Face HAL code
+        run: |
+          python3 tools/check_face_calibration.py proprietary/vendor/lib64/libautocalsolvers.so \
+            --stock-face work/stock-face-hal \
+            --face proprietary/vendor/bin/hw/android.hardware.biometrics.face@1.0-service.google \
+            --device-root device-reference --report work/face-calibration.txt
+      - name: Verify legacy crypto and unchanged Keymaster code
+        run: |
+          python3 tools/check_keymaster_crypto.py \
+            --service proprietary/vendor/bin/hw/android.hardware.keymaster@4.1-service.citadel \
+            --impl proprietary/vendor/lib64/android.hardware.keymaster@4.1-impl.nos.so \
+            --before-service work/keymaster-service.before --before-impl work/keymaster-impl.before \
+            --crypto work/libcrypto-v33.so --device-root device-reference \
+            --report work/keymaster-crypto.txt
+      - name: Check wallpaper packaging and Pokemon exclusion
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tools -p test_google_pokemon_removal.py
+          python3 tools/strip_google_pokemon_wallpaper.py \
+            --input proprietary/product/priv-app/PixelLiveWallpaper/PixelLiveWallpaper.apk \
+            --output work/PixelLiveWallpaper.apk
+          python3 tools/check_pixel_wallpaper.py --without-pokemon work/PixelLiveWallpaper.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flame-port-validation
+          path: |
+            work/face-calibration.txt
+            work/keymaster-crypto.txt

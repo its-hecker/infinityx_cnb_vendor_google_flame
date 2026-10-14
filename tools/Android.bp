@@ -1,0 +1,9 @@
+// Remove the incompatible Pokemon renderer while preserving the other Google wallpapers.
+python_binary_host {
+    name: "coral_strip_google_pokemon_wallpaper",
+    main: "strip_google_pokemon_wallpaper.py",
+    srcs: [
+        "strip_google_pokemon_wallpaper.py",
+        "apk_resource_reader.py",
+    ],
+}

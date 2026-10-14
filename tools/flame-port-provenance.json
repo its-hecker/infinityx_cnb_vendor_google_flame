@@ -1,0 +1,43 @@
+{
+  "device_donor": {
+    "repository": "its-hecker/infinity_cnb_android_device_google_coral",
+    "commit": "5cb464b100dd18080bbe801cf1d18af8181804a7"
+  },
+  "vendor_donor": {
+    "repository": "its-hecker/infinity_cnb_proprietary_vendor_google_coral",
+    "commit": "638ae3b4eb952af6cfba522adb3ffe0910d9db35"
+  },
+  "flame_vendor_baseline": "a57f01d5642a55250e48b244f51be9322659eeed",
+  "donor_payload_sha256": {
+    "proprietary/product/app/MotionSenseBridge/MotionSenseBridge.apk": "ba8a654db0ae508f923c0ab130771ef9fb3a1d8ad788738abbc6afd50099b6b1",
+    "proprietary/product/etc/permissions/privapp-permissions-pixel-live-wallpaper.xml": "09aa1121458ba07d4b776fdbb29245c2ad3e7593b7d5918cf5b35efe2ad41e74",
+    "proprietary/product/priv-app/PixelLiveWallpaper/PixelLiveWallpaper.apk": "0b2d73fe4698c41c267b56d98dd5a151e7b5acac5248ec0105157d13dbd61eda",
+    "proprietary/system_ext/priv-app/OsloFeedback/OsloFeedback.apk": "30d45d2cc80b3736fc6ce303dec0a1722598a1c80784ee951376b47b3314ca7e",
+    "proprietary/vendor/bin/hw/android.hardware.biometrics.face@1.0-service.google": "56502b0369ea3ad5f8010690c291651ad6d312514b0af2ec4793a7e6d0c22482",
+    "proprietary/vendor/etc/init/android.hardware.biometrics.face@1.0-service.google.rc": "5d341ed03c01597a6489cb3954779db313a6c0eeab6adafcdcbd802670bab3c1",
+    "proprietary/vendor/etc/vintf/manifest/manifest_face.xml": "97187796760bf5016d74923fe32e71de1ace62badb8b382d37c83ec5c5ffc138",
+    "proprietary/vendor/lib64/libautocalsolvers.so": "d7b090b95f01d707b1be17f3a0db070bf84d8f7598a814d0bb6e17a18372891a",
+    "proprietary/vendor/bin/hw/android.hardware.keymaster@4.1-service.citadel": "586e01fcc6af409d0aafe1fe130ee5f67468b27fc11206de4364f117d4887214",
+    "proprietary/vendor/lib64/android.hardware.keymaster@4.1-impl.nos.so": "eec5e6a6e33ed9e0eb3d83c1b2dfd444ac1f9a73e965ae72dfe4ae93b2720fb3"
+  },
+  "flame_preserved_git_blobs": {
+    "proprietary/product/app/PixelCameraServicesFlame/PixelCameraServicesFlame.apk": "cd14505593e3a22fecb19a05d6190d42fe133724",
+    "proprietary/vendor/firmware/OsloSensorPackage.bin": "03b2bf8406e45c79c34094cda306dea811181fe7",
+    "proprietary/vendor/firmware/nanoapp_config.textproto": "c4c5b1440f5db38d1923227bcc2d84bae7e3cda4",
+    "proprietary/vendor/etc/input_classifier_model.pb": "c18ab8be2096371ee1babde3b019d736ef85dbb2",
+    "Android.mk": "3896f1903b637f524c7eaf6c1bc73dd06212f5a7",
+    "BoardConfigVendor.mk": "f8684942079a46d6ee62cfdb93037babfb73e7ae",
+    "radio/abl.img": "8f37c24333d2b234d73f34b53e71bd55ba398ab7",
+    "radio/aop.img": "c7a71dc2843436c634f662bb3d37a0620c1d3faf",
+    "radio/devcfg.img": "cc12877d2a8129a38bef3501b12c3e67eefb10c2",
+    "radio/hyp.img": "88ad7c2a498523aa1e650441f93a5cd01f63c9af",
+    "radio/keymaster.img": "8872f26aca4b7cf6fb2577c6abf6c2d4cebaa2ea",
+    "radio/modem.img": "57a1ba775be00f4d5b9379c80e1ae0bca1ffc2a2",
+    "radio/qupfw.img": "8be442bc6ca6e6d806332e89ef27b08767e503ca",
+    "radio/tz.img": "081c5f43186eadc251ddfdccab37177f94636dbc",
+    "radio/uefisecapp.img": "7c15b78afbc4f80fbe9eb35c4f5cb2e453920eab",
+    "radio/xbl.img": "d4177ad2c6d45e737cccea1f1aca0ce1af7d5c4f",
+    "radio/xbl_config.img": "db2c293b6f0530727f4219f897dea71f1b20f7e8"
+  },
+  "runtime_status": "Coral tested; Flame build and phone validation pending."
+}
