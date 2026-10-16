@@ -1,6 +1,6 @@
 # Original stock Google Camera 8.7 for Flame
 
-This directory is selected by the `gcam-experimental-flame` device product.
+This directory is selected by the stable `infinity-4.1-flame` device product.
 `GoogleCameraFlame` installs Google's original Camera **8.7.250.494820638.44**
 (`65822832`) in /product/app with its base and nine common feature splits.
 Six Tensor-specific p21/p22/cheetah modules are excluded.
@@ -41,5 +41,7 @@ ten APKs' hashes, Google signer, package/version/split IDs and startup JNI paylo
 The inherited Flame-port workflow checks the original firmware and Face ID/
 Motion Sense payloads against their recorded provenance.
 
-A complete Flame Android 17 build and on-device GCam testing are still required.
-Follow the matching local-manifest branch's `docs/GCAM_EXPERIMENTAL.md`.
+The maintainer confirmed GCam works on Flame on 2026-10-17 and approved its
+promotion from `gcam-experimental-flame` to `infinity-4.1-flame`. The tested APK
+payload is unchanged. The Flame local manifest's `main` branch selects these
+stable sources; follow its `docs/GOOGLE_CAMERA.md` for sync/build and regression checks.
