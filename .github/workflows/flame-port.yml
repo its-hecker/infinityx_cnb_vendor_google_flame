@@ -2,9 +2,9 @@ name: Validate Flame Face ID and Motion Sense port
 
 on:
   push:
-    branches: [infinity-4.1-flame]
+    branches: [infinity-4.1-flame, gcam-experimental-flame]
   pull_request:
-    branches: [infinity-4.1-flame]
+    branches: [infinity-4.1-flame, gcam-experimental-flame]
   workflow_dispatch:
 
 permissions:
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           repository: its-hecker/infinity_cnb_android_device_google_coral
-          ref: infinity-4.1-flame
+          ref: ${{ github.base_ref || github.ref_name }}
           path: device-reference
       - uses: actions/setup-python@v5
         with:

@@ -1,0 +1,46 @@
+name: Verify Flame Google Camera
+
+on:
+  push:
+    branches: [gcam-experimental-flame]
+    paths:
+      - 'camera/**'
+      - '.github/workflows/google-camera.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flame-google-camera-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  camera:
+    if: github.ref == 'refs/heads/gcam-experimental-flame'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: gcam-experimental-flame
+          sparse-checkout: |
+            camera
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set Android build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          if [[ ! -x "$tools/aapt2" || ! -x "$tools/apksigner" ]]; then
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+          fi
+          echo "$tools" >> "$GITHUB_PATH"
+      - name: Verify every packaged APK and the complete install set
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 camera/tools/prepare_camera.py --check
