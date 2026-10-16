@@ -1,0 +1,95 @@
+name: Import pinned Flame Google Camera payload
+
+on:
+  push:
+    branches: [gcam-experimental-flame]
+    paths: ['.github/workflows/import-google-camera.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flame-google-camera-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: github.repository == 'its-hecker/infinityx_cnb_vendor_google_flame' && github.ref == 'refs/heads/gcam-experimental-flame'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: gcam-experimental-flame
+      - uses: actions/checkout@v5
+        with:
+          repository: its-hecker/infinity_cnb_proprietary_vendor_google_coral
+          ref: 15499dacfed25dc3ca7d12756e707d3cd7809bb8
+          path: donor-reference
+          persist-credentials: false
+          sparse-checkout: camera/prebuilt
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Copy only the three pinned Camera chunks
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import shutil
+          destination = Path('camera/prebuilt')
+          payload = json.loads((destination / 'payload.json').read_text())
+          expected = {
+              'GoogleCameraFlame.apks.00': '41691074ffafbcd447ae55fccced41abd4dfd6f2f7ff2d0b0a3d1c7d20b443e5',
+              'GoogleCameraFlame.apks.01': 'bcd1a737292b12ca8286163753cfdf96e6a675878e3c28e71075ca11ec6bf55a',
+              'GoogleCameraFlame.apks.02': '0af48cc831cc2bf71d708eeac44534732e6d4d395c29dc611c5090fcc7f91ad2',
+          }
+          assert set(payload['chunks']) == set(expected)
+          assert payload['archive_sha256'] == 'e1ad25c00bc0e712069f69ed3105bc69450e90236424dd45106081054b2086bd'
+          for name, digest in expected.items():
+              source = Path('donor-reference/camera/prebuilt') / name.replace('Flame', 'Coral')
+              assert source.stat().st_size == payload['chunks'][name]['size']
+              with source.open('rb') as stream:
+                  assert hashlib.file_digest(stream, 'sha256').hexdigest() == digest
+              assert payload['chunks'][name]['sha256'] == digest
+              shutil.copyfile(source, destination / name)
+          print('PASS: only the three exact Coral donor chunks copied')
+          PY
+      - name: Set Android build tools
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          if [[ ! -x "$tools/aapt2" || ! -x "$tools/apksigner" ]]; then
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+          fi
+          echo "$tools" >> "$GITHUB_PATH"
+      - name: Verify all original Google APK signatures and install contents
+        run: |
+          set -euo pipefail
+          python3 camera/tools/prepare_camera.py --check | tee camera/validation.txt
+      - name: Commit the validated payload to the experimental branch only
+        run: |
+          set -euo pipefail
+          git add -- camera/prebuilt/GoogleCameraFlame.apks.* camera/validation.txt
+          python3 - <<'PY'
+          import subprocess
+          expected = {
+              'camera/prebuilt/GoogleCameraFlame.apks.00',
+              'camera/prebuilt/GoogleCameraFlame.apks.01',
+              'camera/prebuilt/GoogleCameraFlame.apks.02',
+              'camera/validation.txt',
+          }
+          actual = set(subprocess.check_output(
+              ['git', 'diff', '--cached', '--name-only'], text=True).splitlines())
+          assert actual <= expected, actual
+          PY
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m "flame: import verified original Google Camera 8.7 APK set"
+          git push origin HEAD:refs/heads/gcam-experimental-flame

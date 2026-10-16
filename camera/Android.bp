@@ -1,0 +1,23 @@
+// Original Google-signed stock Camera, retained as a split APK installation.
+package {
+    default_applicable_licenses: ["flame_google_camera_license"],
+}
+
+license {
+    name: "flame_google_camera_license",
+    license_kinds: ["legacy_proprietary"],
+}
+
+genrule {
+    name: "flame_google_camera_apk_set",
+    srcs: ["prebuilt/GoogleCameraFlame.apks.*"],
+    out: ["GoogleCameraFlame.apks"],
+    cmd: "cat $(in) > $(out)",
+}
+
+android_app_set {
+    name: "GoogleCameraFlame",
+    owner: "google",
+    set: ":flame_google_camera_apk_set",
+    product_specific: true,
+}
